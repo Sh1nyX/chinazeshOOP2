@@ -2,166 +2,160 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include <stdexcept>
 
-PhoneBook createContact()
+
+void PhoneBook::addContact()
 {
-	std::string name, surname, patronymic, contactinfo;
-	size_t homenumber, worknumber, phonenumber;
-
-	std::cout << "Input name: "; 
-	std::cin >> name; 
-	std::cout << "Input surname: "; 
-	std::cin >> surname; 
-	std::cout << "Input patronymic: "; 
+	char name[50], surname[50], patronymic[50], contactinfo[100];
+	size_t homenum, worknum, phonenum;
+	std::cout << "Enter Name: ";
+	std::cin >> name;
+	std::cout << "Enter Surname: ";
+	std::cin >> surname;
+	std::cout << "Enter Patronymic: ";
 	std::cin >> patronymic;
-	std::cout << "Input homenumber: "; 
-	std::cin >> homenumber; 
-	std::cout << "Input worknumber: "; 
-	std::cin >> worknumber; 
-	std::cout << "Input phonenumber: "; 
-	std::cin >> phonenumber; 
-	std::cout << "Input contact info: ";
-	std::cin.ignore();
-	std::getline(std::cin, contactinfo); 
-
-	return PhoneBook(name, surname, patronymic, homenumber, worknumber, phonenumber, contactinfo);
-
+	std::cout << "Enter Home Number: ";
+	std::cin >> homenum;
+	std::cout << "Enter Work Number: ";
+	std::cin >> worknum;
+	std::cout << "Enter Phone Number: ";
+	std::cin >> phonenum;
+	std::cout << "Enter Contact Info: ";
+	std::cin.ignore();  // Игнорируем символ новой строки
+	std::cin.getline(contactinfo, 100);
+	Contact contact(name, surname, patronymic, homenum, worknum, phonenum, contactinfo);
+	contacts.push_back(contact);
 }
 
-void addContact(PhoneBook*& phonebook, size_t& size)
+void PhoneBook::printContacts()
 {
-	PhoneBook newContact = createContact(); 
-
-	PhoneBook* newPhonebook = new PhoneBook[size + 1]; 
-
-	for (size_t i = 0; i < size; ++i)
+	if (contacts.empty())
 	{
-		newPhonebook[i] = phonebook[i];
+		std::cout << "Phonebook is empty" << std::endl;
+		return;
 	}
-
-	newPhonebook[size] = newContact;
-
-	delete[] phonebook; 
-	phonebook = nullptr; 
-
-	phonebook = newPhonebook; 
-
-	++size; 
+	for (size_t i = 0; i < contacts.size(); ++i)
+	{
+		std::cout << "Name: " << contacts[i].getName();
+		std::cout << "\nSurname: " << contacts[i].getSurname();
+		std::cout << "\nPatronymic: " << contacts[i].getPatronymic();
+		std::cout << "\nHomenumber: " << contacts[i].getHomenumber();
+		std::cout << "\nWorknumber: " << contacts[i].getWorknumber();
+		std::cout << "\nPhonenumber: " << contacts[i].getPhonenumber();
+		std::cout << "\nContact info: " << contacts[i].getContactinfo() << std::endl;
+	}
 }
 
-void printContacts(PhoneBook*& phonebook, size_t& size)
-{
-	for (size_t i = 0; i < size; ++i)
-	{
-		std::cout << "Name: " << phonebook[i].getName(); 
-		std::cout << "\nSurname: " << phonebook[i].getSurname();
-		std::cout << "\nPatronymic: " << phonebook[i].getPatronymic();
-		std::cout << "\nHomenumber: " << phonebook[i].getHomenumber();
-		std::cout << "\nWorknumber: " << phonebook[i].getWorknumber();
-		std::cout << "\nPhonenumber: " << phonebook[i].getPhonenumber();
-		std::cout << "\nContact info: " << phonebook[i].getContactinfo() << std::endl; 
-		std::cout << std::endl;
-	}
-	
-}
-
-void deleteContact(PhoneBook*& phonebook, size_t& size)
+void PhoneBook::deleteContact()
 {
 	size_t index; 
-	try
+	std::cout << "Input number of contact: "; 
+	std::cin >> index; 
+	index -= 1; 
+	if (index < 0 || index >= contacts.size())
 	{
-		std::cout << "Input number of contact u wanna delete: ";
-		std::cin >> index;
-		if (index < 1 || index > size)
-			throw std::out_of_range("Invalid index");
-
-		if (size == 0)
-			throw std::logic_error("No elements in array"); 
-
-		if (size == 1)
-		{
-			delete[] phonebook; 
-			phonebook = nullptr; 
-			size = 0; 
-			return; 
-		}
-
-		PhoneBook* newPhonebook = new PhoneBook[size - 1];
-		for (size_t i = 0, j = 0; i < size; ++i)
-		{
-			if (i == index - 1)
-				++i; 
-			newPhonebook[j] = phonebook[i];
-			++j; 
-		}
-
-		delete[] phonebook;
-		phonebook = nullptr;
-
-		phonebook = newPhonebook;
-
-		--size;
+		std::cout << "Invalid index" << std::endl; 
+		return; 
 	}
-	catch (std::out_of_range e) {
-		std::cout << e.what() << std::endl; 
-	}
+	contacts.erase(contacts.begin() + index); 
 }
 
-void findContact(PhoneBook*& phonebook, size_t& size)
+void PhoneBook::findContact()
 {
-	bool found = false; 
-	std::string name, surname, patronymic; 
-	std::cout << "Input name: ";
+	char name[50], surname[50], patronymic[50], contactinfo[100];
+	bool key = false; 
+	std::cout << "Enter Name: ";
 	std::cin >> name;
-	std::cout << "Input surname: ";
+	std::cout << "Enter Surname: ";
 	std::cin >> surname;
-	std::cout << "Input patronymic: ";
+	std::cout << "Enter Patronymic: ";
 	std::cin >> patronymic;
-	
-	for (int i = 0; i < size; ++i)
+	for (size_t i = 0; i < contacts.size(); ++i)
 	{
-		if (phonebook[i].getName() == name && phonebook[i].getSurname() == surname && phonebook[i].getPatronymic() == patronymic)
+		if (strcmp(contacts[i].getName(), name) == 0 && strcmp(contacts[i].getSurname(), surname) == 0 && strcmp(contacts[i].getPatronymic(), patronymic) == 0)
 		{
-			printFoundContact(phonebook, i);
-			found = true; 
+			std::cout << "Name: " << contacts[i].getName();
+			std::cout << "\nSurname: " << contacts[i].getSurname();
+			std::cout << "\nPatronymic: " << contacts[i].getPatronymic();
+			std::cout << "\nHomenumber: " << contacts[i].getHomenumber();
+			std::cout << "\nWorknumber: " << contacts[i].getWorknumber();
+			std::cout << "\nPhonenumber: " << contacts[i].getPhonenumber();
+			std::cout << "\nContact info: " << contacts[i].getContactinfo() << std::endl;
+			key = true; 
 			break; 
 		}
 	}
-	if (found == false)
-		std::cout << "Contact is not found" << std::endl;
+	if (!key)
+		std::cout << "Contact is not found" << std::endl; 
+}
+
+void PhoneBook::saveContacts(const char* filename)
+{
+	setlocale(LC_ALL, "");
+	std::ofstream outputFile(filename, std::ios::out);
+	
+	try
+	{
+		if (!outputFile) {
+			throw std::runtime_error("Error while opening file");
+		}
+
+		for (Contact& contact : contacts)
+		{
+			outputFile << contact.getName() << '\n'
+				<< contact.getSurname() << '\n'
+				<< contact.getPatronymic() << '\n'
+				<< contact.getHomenumber() << '\n'
+				<< contact.getWorknumber() << '\n'
+				<< contact.getPhonenumber() << '\n'
+				<< contact.getContactinfo() << '\n';
+		}
+		outputFile.close();
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << "Error: " << e.what() << std::endl; 
+	}
+
 	
 }
 
-void printFoundContact(PhoneBook*& phonebook, size_t index)
+void PhoneBook::loadContacts(const char* filename)
 {
-	system("cls");
-	std::cout << "Name: " << phonebook[index].getName();
-	std::cout << "\nSurname: " << phonebook[index].getSurname();
-	std::cout << "\nPatronymic: " << phonebook[index].getPatronymic();
-	std::cout << "\nHomenumber: " << phonebook[index].getHomenumber();
-	std::cout << "\nWorknumber: " << phonebook[index].getWorknumber();
-	std::cout << "\nPhonenumber: " << phonebook[index].getPhonenumber();
-	std::cout << "\nContact info: " << phonebook[index].getContactinfo() << std::endl;
-	std::cout << std::endl;
-}
-
-void saveContacts(PhoneBook* phonebook, size_t size, const std::string& filename)
-{
-	std::ofstream outputFile(filename, std::ios::out); 
-	if (!outputFile)
-		throw std::ios_base::failure("Error while opening file for writing"); 
-
-	for (size_t i = 0; i < size; ++i)
+	std::ifstream inputFile(filename, std::ios::in); 
+	try
 	{
-		outputFile << phonebook[i].getName() << "\n"
-			<< phonebook[i].getSurname() << "\n"
-			<< phonebook[i].getPatronymic() << "\n"
-			<< std::to_string(phonebook[i].getHomenumber()) << "\n"
-			<< std::to_string(phonebook[i].getWorknumber()) << "\n"
-			<< std::to_string(phonebook[i].getPhonenumber()) << "\n"
-			<< phonebook[i].getContactinfo() << "\n";
-	}
+		if (!inputFile)
+			throw std::runtime_error("Error while opening file"); 
+		
+		while (!inputFile.eof())
+		{
+			char name[50], surname[50], patronymic[50], cinfo[50]; 
+			size_t homenum, worknum, phonenum; 
 
-	outputFile.close();
+			inputFile.getline(name, 50); 
+			if (inputFile.eof())
+				break; 
+			
+			inputFile.getline(surname, 50);
+			inputFile.getline(patronymic, 50);
+			inputFile >> homenum;
+			inputFile >> worknum;
+			inputFile >> phonenum;
+			inputFile.ignore(); 
+			inputFile.getline(cinfo, 100);
+
+			Contact contact(name, surname, patronymic, homenum, worknum, phonenum, cinfo); 
+			contacts.push_back(contact); 
+		}
+		
+		inputFile.close(); 
+
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
 }
+	
+	

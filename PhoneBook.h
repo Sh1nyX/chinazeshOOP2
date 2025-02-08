@@ -2,62 +2,84 @@
 #define PHONEBOOK_H
 #include <iostream>
 #include <string>
+#include <vector>
 
-class PhoneBook
+class Contact
 {
-	std::string m_name; 
-	std::string m_surname; 
-	std::string m_patronymic; 
-	size_t m_homenumber; 
-	size_t m_worknumber; 
+	char* m_name;
+	char* m_surname;
+	char* m_patronymic;
+	size_t m_homenumber;
+	size_t m_worknumber;
 	size_t m_phonenumber;
-	std::string m_contactinfo; 
-
-public: 
-	
-	PhoneBook() : m_name{ "Null" }
-		, m_surname{"Null"}
-		, m_patronymic{ "Null" }
-		, m_homenumber{ 0 }
-	    , m_worknumber{ 0 }
-		, m_phonenumber{ 0 }
-		, m_contactinfo{ "Null" }
-	{}
-
-	PhoneBook(std::string name, std::string surname, std::string patrinymic, size_t homenum, size_t worknum, size_t phonenum, std::string cinfo) :
-		m_name{ name }
-		, m_surname { surname }
-		, m_patronymic { patrinymic }
-		, m_homenumber { homenum }
-		, m_worknumber { worknum }
-		, m_phonenumber { phonenum }
-		, m_contactinfo { cinfo }
-	{}
-
-	~PhoneBook() {}
-
-	void setName(std::string name) {
-		m_name = name; 
+	char* m_contactinfo;
+public:
+	Contact() : m_name(new char[5])
+		, m_surname(new char[5])
+		, m_patronymic(new char[5]),
+		m_homenumber(0)
+		, m_worknumber(0)
+		, m_phonenumber(0)
+		, m_contactinfo(new char[5])
+	{
+		strcpy_s(m_name, 5, "Null");
+		strcpy_s(m_surname, 5, "Null");
+		strcpy_s(m_patronymic, 5, "Null");
+		strcpy_s(m_contactinfo, 5, "Null");
 	}
 
-	std::string& getName(){
-		return m_name; 
+	Contact(const char* name, const char* surname, const char* patronymic, size_t homenum, size_t worknum, size_t phonenum, const char* cinfo)
+		: m_homenumber(homenum)
+		, m_worknumber(worknum)
+		, m_phonenumber(phonenum)
+	{
+		m_name = new char[strlen(name) + 1];
+		strcpy_s(m_name, strlen(name) + 1, name);
+		m_surname = new char[strlen(surname) + 1];
+		strcpy_s(m_surname, strlen(surname) + 1, surname);
+		m_patronymic = new char[strlen(patronymic) + 1];
+		strcpy_s(m_patronymic, strlen(patronymic) + 1, patronymic);
+		m_contactinfo = new char[strlen(cinfo) + 1];
+		strcpy_s(m_contactinfo, strlen(cinfo) + 1, cinfo);
 	}
 
-	void setSurname(std::string surname) {
-		m_surname = surname;
+
+	~Contact()
+	{
+		delete[] m_name;
+		delete[] m_surname;
+		delete[] m_patronymic;
+		delete[] m_contactinfo;
 	}
 
-	std::string& getSurname(){
+	void setName(const char* name) {
+		delete[] m_name;
+		m_name = new char[strlen(name) + 1];
+		strcpy_s(m_name, strlen(name) + 1, name);
+	}
+
+	const char* getName() {
+		return m_name;
+	}
+
+	void setSurname(const char* surname) {
+		delete[] m_surname;
+		m_surname = new char[strlen(surname) + 1];
+		strcpy_s(m_surname, strlen(surname) + 1, surname);
+	}
+
+	const char* getSurname() {
 		return m_surname;
 	}
 
-	void setPatronymic(std::string patronymic) {
-		m_patronymic = patronymic; 
+	void setPatronymic(const char* patronymic) {
+		delete[] m_patronymic;
+		m_patronymic = new char[strlen(patronymic) + 1];
+		strcpy_s(m_patronymic, strlen(patronymic) + 1, patronymic);
 	}
 
-	std::string& getPatronymic(){
-		return m_patronymic; 
+	const char* getPatronymic() {
+		return m_patronymic;
 	}
 
 	void setHomenumber(size_t homenum) {
@@ -65,7 +87,7 @@ public:
 	}
 
 	size_t getHomenumber() {
-		return m_homenumber; 
+		return m_homenumber;
 	}
 
 	void setWorknumber(size_t worknum) {
@@ -85,29 +107,43 @@ public:
 		return m_phonenumber;
 	}
 
-	void setContactinfo(std::string cinfo) {
-		m_contactinfo = cinfo; 
+	void setContactinfo(const char* cinfo) {
+		delete[] m_contactinfo;
+		m_contactinfo = new char[strlen(cinfo) + 1];
+		strcpy_s(m_contactinfo, strlen(cinfo) + 1, cinfo);
 	}
 
-	std::string getContactinfo(){
-		return m_contactinfo; 
+	const char* getContactinfo() {
+		return m_contactinfo;
 	}
 
-	
 };
 
-PhoneBook createContact();
+class PhoneBook
+{
+	std::vector<Contact> contacts;
 
-void addContact(PhoneBook*& phonebook, size_t& size); 
+public: 
+	
+	void addContact();
 
-void printContacts(PhoneBook*& phonebook, size_t& size); 
+	void printContacts(); 
 
-void deleteContact(PhoneBook*& phonebook, size_t& size); 
+	void deleteContact(); 
 
-void findContact(PhoneBook*& phonebook, size_t& size); 
+	void findContact();
 
-void printFoundContact(PhoneBook*& phonebook, size_t index); 
+	const Contact& operator[](size_t index) const {
+		return contacts[index]; 
+	}
 
-void saveContacts(const PhoneBook* phonebook, size_t size, const std::string& filename);
+	void saveContacts(const char* filename); 
+
+	void loadContacts(const char* filename); 
+};
+
+
+
+
 
 #endif
